@@ -1,0 +1,21 @@
+# SDL2 Game Controller Database for PlayStation Classic
+# PlayStation Classic built-in controller (USB HID Gamepad)
+# Format: GUID,name,mapping
+#
+# PSC Controller maps as a standard USB gamepad
+# Up/Down/Left/Right = D-pad (hat0)
+# Cross = b0, Circle = b1, Square = b2, Triangle = b3
+# L1 = b4, R1 = b5, Select = b6, Start = b7
+# L2 = b8, R2 = b9 (if available, some controllers map as axes)
+
+# PlayStation Classic Controller (USB vendor: 054c product: 0cda)
+054c0000cda00000,PlayStation Classic Controller,platform:Linux,a:b0,b:b1,x:b2,y:b3,back:b6,start:b7,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,
+
+# Generic USB gamepad fallbacks (common on PSC with different controllers)
+03000000790000001100000010010000,USB Gamepad,platform:Linux,a:b2,b:b1,x:b3,y:b0,back:b8,start:b9,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,lefttrigger:b6,righttrigger:b7,
+
+# 8BitDo controllers (popular with PSC)
+05000000c82d00006228000000010000,8BitDo SN30 Pro,platform:Linux,a:b1,b:b0,x:b4,y:b3,back:b10,start:b11,leftshoulder:b6,rightshoulder:b7,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,lefttrigger:b8,righttrigger:b9,leftx:a0,lefty:a1,rightx:a2,righty:a3,
+
+# DualShock 4 (often used via USB with PSC)
+050000004c050000cc09000000010000,Sony DualShock 4,platform:Linux,a:b0,b:b1,x:b3,y:b2,back:b8,start:b9,leftstick:b11,rightstick:b12,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,leftx:a0,lefty:a1,rightx:a3,righty:a4,lefttrigger:a2,righttrigger:a5,
