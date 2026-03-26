@@ -11,9 +11,9 @@ BUILD_DIR="${SCRIPT_DIR}/eduke32-src"
 OUTPUT_DIR="${SCRIPT_DIR}/output"
 
 # PSC toolchain paths
-PSC_TOOLCHAIN="${PSC_TOOLCHAIN:-/opt/PSC-CrossCompile-Toolchain}"
-CROSS_PREFIX="${PSC_TOOLCHAIN}/bin/arm-buildroot-linux-gnueabihf-"
-SYSROOT="${PSC_TOOLCHAIN}/arm-buildroot-linux-gnueabihf/sysroot"
+PSC_TOOLCHAIN="${PSC_TOOLCHAIN:-/opt/PSC-CrossCompile-Toolchain/armv8-sony-linux-gnueabihf}"
+CROSS_PREFIX="${PSC_TOOLCHAIN}/bin/armv8-sony-linux-gnueabihf-"
+SYSROOT="${PSC_TOOLCHAIN}/armv8-sony-linux-gnueabihf/sysroot"
 
 export CC="${CROSS_PREFIX}gcc"
 export CXX="${CROSS_PREFIX}g++"
@@ -34,9 +34,10 @@ echo "CC: ${CC}"
 echo ""
 
 # Step 1: Clone EDuke32 source if not present
-if [ ! -d "${BUILD_DIR}" ]; then
+if[ ! -d "${BUILD_DIR}" ]; then
     echo "[1/4] Cloning EDuke32 source..."
-    git clone --depth=1 https://voidpoint.io/terminx/eduke32.git "${BUILD_DIR}"
+    # MODIFICA: Utilizzo del mirror di GitHub invece di voidpoint.io per evitare l'errore 503
+    git clone --depth=1 https://github.com/retrofw/eduke32.git "${BUILD_DIR}"
 else
     echo "[1/4] EDuke32 source already present, skipping clone"
 fi
@@ -132,7 +133,7 @@ mkdir -p "${OUTPUT_DIR}/DNF/lib"
 
 # Copy the eduke32 binary
 EDUKE32_BIN=$(find . -name "eduke32" -type f -executable | head -1)
-if [ -z "${EDUKE32_BIN}" ]; then
+if[ -z "${EDUKE32_BIN}" ]; then
     # Try common output paths
     for path in eduke32 build/eduke32; do
         if [ -f "${path}" ]; then
@@ -142,7 +143,7 @@ if [ -z "${EDUKE32_BIN}" ]; then
     done
 fi
 
-if [ -z "${EDUKE32_BIN}" ]; then
+if[ -z "${EDUKE32_BIN}" ]; then
     echo "ERROR: Could not find eduke32 binary!"
     find . -name "eduke32*" -type f 2>/dev/null
     exit 1
