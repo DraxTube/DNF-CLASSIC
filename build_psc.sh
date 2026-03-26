@@ -34,7 +34,7 @@ echo "CC: ${CC}"
 echo ""
 
 # Step 1: Clone EDuke32 source if not present
-if[ ! -d "${BUILD_DIR}" ]; then
+if [ ! -d "${BUILD_DIR}" ]; then
     echo "[1/4] Cloning EDuke32 source..."
     # MODIFICA: Utilizzo del mirror di GitHub invece di voidpoint.io per evitare l'errore 503
     git clone --depth=1 https://github.com/retrofw/eduke32.git "${BUILD_DIR}"
@@ -133,17 +133,17 @@ mkdir -p "${OUTPUT_DIR}/DNF/lib"
 
 # Copy the eduke32 binary
 EDUKE32_BIN=$(find . -name "eduke32" -type f -executable | head -1)
-if[ -z "${EDUKE32_BIN}" ]; then
+if [ -z "${EDUKE32_BIN}" ]; then
     # Try common output paths
     for path in eduke32 build/eduke32; do
-        if [ -f "${path}" ]; then
+        if[ -f "${path}" ]; then
             EDUKE32_BIN="${path}"
             break
         fi
     done
 fi
 
-if[ -z "${EDUKE32_BIN}" ]; then
+if [ -z "${EDUKE32_BIN}" ]; then
     echo "ERROR: Could not find eduke32 binary!"
     find . -name "eduke32*" -type f 2>/dev/null
     exit 1
