@@ -1,0 +1,144 @@
+name: Build DNF for PlayStation Classic
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build Docker image
+        run: |
+          docker build -t dnf-psc-builder .
+
+      - name: Build EDuke32 for PSC
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/build \
+            -w /build \
+            dnf-psc-builder \
+            bash build_psc.sh
+
+      - name: Verify build output
+        run: |
+          echo "=== Checking build output ==="
+          ls -la output/DNF/
+          echo ""
+          echo "=== Binary info ==="
+          file output/DNF/eduke32
+          echo ""
+          echo "=== Binary size ==="
+          du -h output/DNF/eduke32
+
+      - name: Prepare release package
+        run: |
+          mkdir -p release/DNF
+
+          # Copy binary and libs
+          cp -r output/DNF/* release/DNF/
+
+          # Copy PSC configuration files
+          cp psc/launch.sh release/DNF/
+          cp psc/eduke32.cfg release/DNF/
+          cp psc/gamecontrollerdb.txt release/DNF/
+
+          # Make scripts executable
+          chmod +x release/DNF/launch.sh
+          chmod +x release/DNF/eduke32
+
+          # Create a README for the release
+          cat > release/DNF/README_INSTALL.txt << 'EOF'
+          ============================================================
+           DNF (Duke Nukem Forever Mod) - PlayStation Classic Edition
+          ============================================================
+
+          INSTALLATION:
+          1. Format a USB drive as FAT32, label it "SONY"
+          2. Install AutoBleem on the USB drive
+          3. Copy this entire "DNF" folder to the USB drive root
+          4. Copy YOUR game data files into the DNF folder:
+             - DUKE3D.GRP (from Duke Nukem 3D Atomic Edition)
+             - DNF.GRP
+             - DNFGAME.CON
+             - DNF.CON
+             - DEFS.CON
+             - USER.CON
+             - EBIKE.CON
+             - All .CFG files (ANDRMINE.CFG, DAMTOP.CFG, etc.)
+          5. Insert USB into PS Classic controller port 2
+          6. Power on → AutoBleem will boot
+          7. Navigate to DNF and launch!
+
+          CONTROLS:
+           D-pad       = Move
+           Cross (X)   = Open / Use
+           Circle (O)  = Jump
+           Square      = Fire
+           Triangle    = Map
+           L1          = Previous Weapon
+           R1          = Next Weapon
+           L2          = Crouch
+           Start       = Pause / Menu
+           Select      = Inventory
+
+          TROUBLESHOOTING:
+          - If the game doesn't start, check that all GRP/CON files are present
+          - Make sure DUKE3D.GRP is the ATOMIC EDITION version
+          - USB must be FAT32 formatted and labeled "SONY"
+          ============================================================
+          EOF
+
+          # Create the ZIP
+          cd release
+          zip -r ../DNF-PSClassic-$(date +%Y%m%d).zip DNF/
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DNF-PSClassic
+          path: release/DNF/
+          retention-days: 30
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: DNF-PSClassic-*.zip
+          body: |
+            ## DNF (Duke Nukem Forever Mod) - PlayStation Classic Edition
+
+            ### Requirements
+            - PlayStation Classic Mini with **AutoBleem** installed
+            - USB drive formatted as **FAT32**, labeled **SONY**
+            - **Duke Nukem 3D Atomic Edition** (`DUKE3D.GRP`)
+            - **DNF mod files** (`DNF.GRP`, `DNFGAME.CON`, etc.)
+
+            ### Installation
+            1. Extract the ZIP to your USB drive root
+            2. Copy your game data files into the `DNF/` folder
+            3. Plug USB into PS Classic port 2 and boot!
+
+            See `README_INSTALL.txt` inside the ZIP for full instructions.
+          draft: false
+          prerelease: false
