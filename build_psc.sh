@@ -37,7 +37,7 @@ echo ""
 if [ ! -d "${BUILD_DIR}" ]; then
     echo "[1/4] Cloning EDuke32 source..."
     # MODIFICA: Utilizzo del mirror di GitHub invece di voidpoint.io per evitare l'errore 503
-    git clone --depth=1 https://github.com/retrofw/eduke32.git "${BUILD_DIR}"
+    git clone --depth=1 https://github.com/retrofw/eduke32.git "${BUILD_DIR}" 
 else
     echo "[1/4] EDuke32 source already present, skipping clone"
 fi
